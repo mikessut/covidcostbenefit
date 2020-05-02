@@ -25,12 +25,26 @@
 }
 
 .table1 {
-  width: 80%;
+  width: 75%;
   margin: auto;
   //margin-top: 50px;
+  margin-left: 5%;
+}
+
+.scenario_select {
+  margin-left: 4%;
+  margin-top: 20px;
 }
 
 h3 {
   margin-left: 10%;
   margin-top: 20px;
+}
+
+#adsense {
+  right: 0px;
+  position: fixed;
+  text-align: center;
+  top: 20px;
+  width: 15%;
 }
