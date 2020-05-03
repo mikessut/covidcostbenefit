@@ -37,7 +37,7 @@ const columns = [
     sort: true,
     events: {onClick: (e, column, columnIdx, row, rowIdx) => this.voteClick(column, columnIdx, row, rowIdx)},
     formatter: (cell, row) => {
-      console.log("formatter:", cell, row);
+      //console.log("formatter:", cell, row);
       return (
         <div>
         <div className="sameline">{cell}</div>
@@ -75,8 +75,13 @@ class MyTable extends React.Component {
 
   setScenario(val) {
     const tmp = [];
-    this.props.data['scenarios'][val][this.props.type].map(x => tmp.push(this.props.data[this.props.type][x]));
-    console.log(tmp);
+    this.props.data['scenarios'][val][this.props.type].map(x => {
+      tmp.push(this.props.data[this.props.type][x]);
+      //console.log("setScenario", this.props.data[this.props.type][x]);
+      this.props.updateFunc(this.props.data[this.props.type][x]['value']);
+    });
+
+    //console.log(tmp);
     this.setState({rows: tmp});
   }
 
@@ -107,23 +112,28 @@ class MyTable extends React.Component {
 class CostBenefit extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {net_benefit: 0}
+    this.state = {net_benefit: 0.0};
     this.cost_ref = React.createRef();
     this.benefit_ref = React.createRef();
   }
 
   updateFunc(val) {
-    this.setState({net_benefit: this.state.net_benefit + val})
+    //Fconsole.log("costbenefitupdatefunc", val, this.state.net_benefit);
+    this.setState(currentState => {
+      currentState.net_benefit += val;
+      return currentState;
+    });
+    //console.log("costbenefitupdatefunc2", this.state.net_benefit);
   }
 
   setScenario(val) {
+    this.setState({net_benefit: 0.0});
     this.cost_ref.current.setScenario(val);
     this.benefit_ref.current.setScenario(val);
-    this.setState({net_benefit: 0});
   }
 
   render() {
-    console.log(this.props);
+    //console.log(this.props);
     if (this.props.isLoading) {
       return null;
     } else {
@@ -135,7 +145,7 @@ class CostBenefit extends React.Component {
         <h3>Benefits</h3>
         <MyTable type="benefits" data={this.props.data} updateFunc={x => this.updateFunc(x)} ref={this.benefit_ref}/>
 
-        <h3>Net Benefit: {this.state.net_benefit} Trillon Dollars</h3>
+        <h3>Net Benefit: {this.state.net_benefit.toFixed(3)} Trillon Dollars</h3>
       </div>
     );
   }
@@ -162,10 +172,10 @@ class CostLibrary extends React.Component {
   constructor(props) {
     super(props);
     this.columns = JSON.parse(JSON.stringify(columns));
-    console.log(this.props.type)
+    //console.log(this.props.type)
     //this.columns[3]['events']['onClick'] = this.voteClick.bind(this);
     this.columns[3]['formatter'] = (cell, row) => {
-          console.log("formatter:", cell, row);
+          //console.log("formatter:", cell, row);
           return (
             <div>
 
@@ -180,7 +190,7 @@ class CostLibrary extends React.Component {
   voteClick(e, row) {
 
     if (!row.hasOwnProperty("voted")) {
-      console.log("voteclick", e, row);
+      //console.log("voteclick", e, row);
       row['votes'] += 1;
       row['voted'] = true;
       this.setState({voted: true});
@@ -234,8 +244,8 @@ class Page extends React.Component {
   }
 
   render() {
-    console.log("page");
-    console.log(this.state.data);
+    //console.log("page");
+    //console.log(this.state.data);
     return (
       <div>
       <center><h1>COVID-19 Cost Benefit</h1></center>

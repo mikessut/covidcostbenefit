@@ -31,6 +31,6 @@ scenarios:
     benefits: []
     id: 0
   - description: Extended Social Distancing
-    costs: [0, 1]
+    costs: [1]
     benefits: [0]
     id: 1
