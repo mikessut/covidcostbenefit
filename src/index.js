@@ -9,6 +9,9 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
+const API_SITE = "http://localhost:5000/"
+// const API_SITE = "htts://covidcostbenefit.com/"
+
 const columns = [
   {
   dataField: 'description',
@@ -20,23 +23,31 @@ const columns = [
   },
   {
     dataField: 'value',
-    text: 'Value (Trillion USD)',
+    text: '$',
     headerStyle: (column, colIndex) => {
       return { width: '40px' };
     },
   },
   {
-    dataField: 'rating',
-    text: 'Rating',
+    dataField: 'votes',
+    text: 'Votes',
     headerStyle: (column, colIndex) => {
-      return { width: '40px' };
+      return { width: '80px' };
+    },
+    sort: true,
+    events: {onClick: (e, column, columnIdx, row, rowIdx) => this.voteClick(column, columnIdx, row, rowIdx)},
+    formatter: (cell, row) => {
+      console.log("formatter:", cell, row);
+      return (
+        <div>
+        <div className="sameline">{cell}</div>
+        <div className="sameline"><img src="like.png" width="32px"/></div>
+        </div>
+      );
     }
+
   }
 ];
-
-const scenarios = [
-  {description: "Blank", costs: [], benefits: [], id:0},
-  {description: "Extended Social Distancing", costs: [0, 1], benefits: [0], id: 1}]
 
 
 class MyDropdown extends React.Component {
@@ -63,12 +74,10 @@ class MyTable extends React.Component {
   }
 
   setScenario(val) {
-    /*
     const tmp = [];
-    scenarios[val][this.props.id].map(x => tmp.push(cost_and_benefits[this.props.id][x]));
+    this.props.data['scenarios'][val][this.props.type].map(x => tmp.push(this.props.data[this.props.type][x]));
     console.log(tmp);
     this.setState({rows: tmp});
-    */
   }
 
   renderTable() {
@@ -76,7 +85,7 @@ class MyTable extends React.Component {
       <ReactBootStrap.Table className="table1" striped bordered hover>
         <tbody>
           <tr>
-            <td width="80%"><MyDropdown title={this.props.id} items={this.props.items} onClick={x => this.addRow(x)}/></td><td></td>
+            <td width="80%"><MyDropdown title={this.props.id} items={this.props.data[this.props.type]} onClick={x => this.addRow(x)}/></td><td></td>
           </tr>
           {this.state.rows.map( (r) => <tr key={r["id"]}><td>{r["description"]}</td><td>{r["value"]}</td></tr>)}
         </tbody>
@@ -121,10 +130,10 @@ class CostBenefit extends React.Component {
     return (
       <div>
         <h3>Costs</h3>
-        <MyTable id="costs" items={this.props.data['costs']} updateFunc={x => this.updateFunc(-x)} ref={this.cost_ref}/>
+        <MyTable type="costs" data={this.props.data} updateFunc={x => this.updateFunc(-x)} ref={this.cost_ref}/>
 
         <h3>Benefits</h3>
-        <MyTable id="benefits" items={this.props.data['benefits']} updateFunc={x => this.updateFunc(x)} ref={this.benefit_ref}/>
+        <MyTable type="benefits" data={this.props.data} updateFunc={x => this.updateFunc(x)} ref={this.benefit_ref}/>
 
         <h3>Net Benefit: {this.state.net_benefit} Trillon Dollars</h3>
       </div>
@@ -136,10 +145,12 @@ class CostBenefit extends React.Component {
 
 class ScenarioSelector extends React.Component {
     render() {
+      if (this.props.isLoading)
+        return null;
       return (
         <div  className="scenario_select">
         <ReactBootStrap.DropdownButton title="Select Scenario">
-          {scenarios.map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x["id"])} key={x["id"]}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
+          {this.props.data['scenarios'].map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x["id"])} key={x["id"]}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
         </ReactBootStrap.DropdownButton>
         </div>
       );
@@ -148,12 +159,44 @@ class ScenarioSelector extends React.Component {
 
 
 class CostLibrary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.columns = JSON.parse(JSON.stringify(columns));
+    console.log(this.props.type)
+    //this.columns[3]['events']['onClick'] = this.voteClick.bind(this);
+    this.columns[3]['formatter'] = (cell, row) => {
+          console.log("formatter:", cell, row);
+          return (
+            <div>
+
+            <div className="sameline"><img src="like.png" width="32px" onClick={(x) => this.voteClick(x, row)}/></div>
+            <div className="sameline">{cell}</div>
+            </div>
+          );
+        };
+    this.state = {voted: false};
+  }
+
+  voteClick(e, row) {
+
+    if (!row.hasOwnProperty("voted")) {
+      console.log("voteclick", e, row);
+      row['votes'] += 1;
+      row['voted'] = true;
+      this.setState({voted: true});
+      axios.post(API_SITE + 'api/v1/vote/' + this.props.type + '/' + row['id']);
+    }
+  }
+
   render() {
+    const defaultSorted = [{dataField: 'votes', order: 'desc'}];
     if (this.props.isLoading)
       return null;
     return (
       <div className="table1 spaceabove">
-      <BootstrapTable keyField='id' pagination={paginationFactory()} striped hover data={this.props.data[this.props.type]} columns={columns}/>
+      <BootstrapTable keyField='id' pagination={paginationFactory()} striped hover
+         data={this.props.data[this.props.type]} columns={this.columns}
+         defaultSorted={defaultSorted}/>
       </div>
     );
   }
@@ -167,10 +210,17 @@ class Page extends React.Component {
                   data: null,
                   isLoading: true};
     this.costbenefit_ref = React.createRef();
+    //columns[3]['events']['onClick'] = this.voteClick;
   }
 
+  //voteClick(e, column, columnIdx, row, rowIdx) {
+  //  console.log("voteclick", e, column, columnIdx, row, rowIdx);
+  //
+  //  row["votes"] += 1;
+  //}
+
   async componentDidMount() {
-    axios.get('https://covidcostbenefit.com/api/v1/resources')
+    axios.get(API_SITE + 'api/v1/resources')
       .then(res => {
         //console.log(res.data);
           this.setState({ data: res.data });
@@ -189,7 +239,7 @@ class Page extends React.Component {
     return (
       <div>
       <center><h1>COVID-19 Cost Benefit</h1></center>
-      <ScenarioSelector onClick={(x) => this.setScenario(x)}/>
+      <ScenarioSelector onClick={(x) => this.setScenario(x)} data={this.state.data} isLoading={this.state.isLoading}/>
       <CostBenefit ref={this.costbenefit_ref} data={this.state.data} isLoading={this.state.isLoading}/>
 
       <hr className='table1'/>

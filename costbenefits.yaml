@@ -1,19 +1,36 @@
-costs:
-  - id: 0
-    description: 6 Month Economic shutdown
-    value: 0.7
-    detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion) for 6 months.
-  - id: 1
-    description: 12 Month Economic shutdown
-    value: 1.4
-    detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion) for 12 months.
-  - id: 2
-    description: 18 Month Economic shutdown
-    value: 2.1
-    detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion) for 18 months.
-
 benefits:
-  - id: 0
-    description: Lives saved from distancing (bad case)
-    value: 0.95
-    detailed_description: Assumes 1.9 million lives are saved by social distance and that each live averages a value of 0.5 million$.
+- description: Lives saved from distancing (bad case)
+  detailed_description: Assumes 1.9 million lives are saved by social distance and
+    that each live averages a value of 0.5 million$.
+  id: 0
+  value: 0.95
+  votes: 1
+costs:
+- description: 6 Month Economic shutdown
+  detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
+    for 6 months.
+  id: 0
+  value: 0.7
+  votes: 16
+- description: 12 Month Economic shutdown
+  detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
+    for 12 months.
+  id: 1
+  value: 1.4
+  votes: 1
+- description: 18 Month Economic shutdown
+  detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
+    for 18 months.
+  id: 2
+  value: 2.1
+  votes: 1
+
+scenarios:
+  - description: Blank
+    costs: []
+    benefits: []
+    id: 0
+  - description: Extended Social Distancing
+    costs: [0, 1]
+    benefits: [0]
+    id: 1
