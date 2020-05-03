@@ -170,7 +170,7 @@ class Page extends React.Component {
   }
 
   async componentDidMount() {
-    axios.get('http://127.0.0.1:5000/api/v1/resources')
+    axios.get('https://covidcostbenefit.com/api/v1/resources')
       .then(res => {
         //console.log(res.data);
           this.setState({ data: res.data });
