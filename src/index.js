@@ -4,23 +4,46 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import * as ReactBootStrap from 'react-bootstrap';
 import axios from 'axios';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import BootstrapTable from 'react-bootstrap-table-next';
+import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
+const columns = [
+  {
+  dataField: 'description',
+  text: 'Description'
+  },
+  {
+    dataField: 'detailed_description',
+    text: "Detailed Description"
+  },
+  {
+    dataField: 'value',
+    text: 'Value (Trillion USD)',
+    headerStyle: (column, colIndex) => {
+      return { width: '40px' };
+    },
+  },
+  {
+    dataField: 'rating',
+    text: 'Rating',
+    headerStyle: (column, colIndex) => {
+      return { width: '40px' };
+    }
+  }
+];
 
-const costs = [{description: "Economic shutdown", value: 7.5, id: 0},
-               {description: "Stimulus plan", value: 2.5, id: 1}];
-
-const benefits = [{description: "Lives saved from distancing", value: 7.5, id: 0}];
-
-const cost_and_benefits = {costs: costs, benefits: benefits};
-
-const scenarios = [{description: "Extended Social Distancing", costs: [0, 1], benefits: [0], id: 0}]
+const scenarios = [
+  {description: "Blank", costs: [], benefits: [], id:0},
+  {description: "Extended Social Distancing", costs: [0, 1], benefits: [0], id: 1}]
 
 
 class MyDropdown extends React.Component {
     render() {
       return (
         <ReactBootStrap.DropdownButton id="dropdown-basic-button" title="Add">
-          {this.props.items.map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x)}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
+          {this.props.items.map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x)} key={x["id"]}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
         </ReactBootStrap.DropdownButton>
       );
     }
@@ -40,13 +63,12 @@ class MyTable extends React.Component {
   }
 
   setScenario(val) {
+    /*
     const tmp = [];
-    console.log(scenarios[val][this.props.id]);
-    console.log(cost_and_benefits[this.props.id]);
-
     scenarios[val][this.props.id].map(x => tmp.push(cost_and_benefits[this.props.id][x]));
     console.log(tmp);
     this.setState({rows: tmp});
+    */
   }
 
   renderTable() {
@@ -56,7 +78,7 @@ class MyTable extends React.Component {
           <tr>
             <td width="80%"><MyDropdown title={this.props.id} items={this.props.items} onClick={x => this.addRow(x)}/></td><td></td>
           </tr>
-          {this.state.rows.map( (r) => <tr><td>{r["description"]}</td><td>{r["value"]}</td></tr>)}
+          {this.state.rows.map( (r) => <tr key={r["id"]}><td>{r["description"]}</td><td>{r["value"]}</td></tr>)}
         </tbody>
       </ReactBootStrap.Table>
     )
@@ -92,18 +114,23 @@ class CostBenefit extends React.Component {
   }
 
   render() {
+    console.log(this.props);
+    if (this.props.isLoading) {
+      return null;
+    } else {
     return (
       <div>
         <h3>Costs</h3>
-        <MyTable id="costs" items={costs} scenario={this.props.scenario} updateFunc={x => this.updateFunc(-x)} ref={this.cost_ref}/>
+        <MyTable id="costs" items={this.props.data['costs']} updateFunc={x => this.updateFunc(-x)} ref={this.cost_ref}/>
 
         <h3>Benefits</h3>
-        <MyTable id="benefits" items={benefits} scenario={this.props.scenario} updateFunc={x => this.updateFunc(x)} ref={this.benefit_ref}/>
+        <MyTable id="benefits" items={this.props.data['benefits']} updateFunc={x => this.updateFunc(x)} ref={this.benefit_ref}/>
 
         <h3>Net Benefit: {this.state.net_benefit} Trillon Dollars</h3>
       </div>
     );
   }
+}
 }
 
 
@@ -112,7 +139,7 @@ class ScenarioSelector extends React.Component {
       return (
         <div  className="scenario_select">
         <ReactBootStrap.DropdownButton title="Select Scenario">
-          {scenarios.map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x["id"])}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
+          {scenarios.map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x["id"])} key={x["id"]}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
         </ReactBootStrap.DropdownButton>
         </div>
       );
@@ -120,11 +147,35 @@ class ScenarioSelector extends React.Component {
 }
 
 
+class CostLibrary extends React.Component {
+  render() {
+    if (this.props.isLoading)
+      return null;
+    return (
+      <div className="table1 spaceabove">
+      <BootstrapTable keyField='id' pagination={paginationFactory()} striped hover data={this.props.data[this.props.type]} columns={columns}/>
+      </div>
+    );
+  }
+}
+
+
 class Page extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {scenario: null};
+    this.state = {scenario: null,
+                  data: null,
+                  isLoading: true};
     this.costbenefit_ref = React.createRef();
+  }
+
+  async componentDidMount() {
+    axios.get('http://127.0.0.1:5000/api/v1/resources')
+      .then(res => {
+        //console.log(res.data);
+          this.setState({ data: res.data });
+          this.setState({isLoading: false});
+        });
   }
 
   setScenario(id) {
@@ -133,11 +184,21 @@ class Page extends React.Component {
   }
 
   render() {
+    console.log("page");
+    console.log(this.state.data);
     return (
       <div>
       <center><h1>COVID-19 Cost Benefit</h1></center>
       <ScenarioSelector onClick={(x) => this.setScenario(x)}/>
-      <CostBenefit scenario={this.state.scenario} ref={this.costbenefit_ref}/>
+      <CostBenefit ref={this.costbenefit_ref} data={this.state.data} isLoading={this.state.isLoading}/>
+
+      <hr className='table1'/>
+      <h3 className="largespaceabove">Library of Costs</h3>
+      <CostLibrary data={this.state.data} type='costs' isLoading={this.state.isLoading}/>
+      <hr className='table1'/>
+
+      <h3 className="largespaceabove">Library of Benefits</h3>
+      <CostLibrary data={this.state.data} type='benefits' isLoading={this.state.isLoading}/>
       </div>
     );
   }
