@@ -9,8 +9,8 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
-const API_SITE = "http://localhost:5000/"
-// const API_SITE = "htts://covidcostbenefit.com/"
+//const API_SITE = "http://localhost:5000/"
+const API_SITE = "https://covidcostbenefit.com/"
 
 const columns = [
   {

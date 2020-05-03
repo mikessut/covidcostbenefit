@@ -11,7 +11,7 @@ costs:
     for 6 months.
   id: 0
   value: 0.7
-  votes: 16
+  votes: 17
 - description: 12 Month Economic shutdown
   detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
     for 12 months.
@@ -24,13 +24,14 @@ costs:
   id: 2
   value: 2.1
   votes: 1
-
 scenarios:
-  - description: Blank
-    costs: []
-    benefits: []
-    id: 0
-  - description: Extended Social Distancing
-    costs: [1]
-    benefits: [0]
-    id: 1
+- benefits: []
+  costs: []
+  description: Blank
+  id: 0
+- benefits:
+  - 0
+  costs:
+  - 1
+  description: Extended Social Distancing
+  id: 1
