@@ -8,7 +8,7 @@ lock = threading.Lock()
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
-CORS(app)
+#CORS(app)
 
 DATA_FILE = 'costbenefits.yaml'
 
@@ -92,4 +92,5 @@ def new_stat():
     return jsonify({'result': 'fail'})
 
 
-app.run()
+if __name__ == '__main__':
+    app.run()

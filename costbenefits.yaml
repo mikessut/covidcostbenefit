@@ -5,7 +5,6 @@ benefits:
   id: 0
   value: 0.95
   votes: 0
-
 costs:
 - description: 6 Month Economic shutdown
   detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
@@ -25,7 +24,13 @@ costs:
   id: 2
   value: 2.1
   votes: 0
-
+- description: Severe 6 month shutdown
+  detailed_description: May 2020 Fortune article has analysts predicting as large
+    as 50% decline in GDP for Q2. If that continued for half a year that's 10 trillion
+    dollars.
+  id: 3
+  value: 10.0
+  votes: 1
 scenarios:
 - benefits: []
   costs: []
@@ -59,11 +64,11 @@ stats:
   value: 47,173
   votes: 0
 - description: 2018 U.S. heart disease deaths
+  id: 4
   value: 647,457
   votes: 0
-  id: 4
 - description: Patient non-compliance. People don't take their medicine.
-  value: 100,000
-  link: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6045499/
-  votes: 0
   id: 5
+  link: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6045499/
+  value: 100,000
+  votes: 0

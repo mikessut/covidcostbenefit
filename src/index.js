@@ -12,8 +12,8 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import $ from 'jquery';
 import Popup from "reactjs-popup";
 
-const API_SITE = "http://localhost:5000/"
-//const API_SITE = "https://covidcostbenefit.com/"
+//const API_SITE = "http://localhost:5000/"
+const API_SITE = "https://covidcostbenefit.com/"
 
 const columns = [
   {
