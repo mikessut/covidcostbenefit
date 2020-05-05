@@ -3,14 +3,17 @@ import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import * as ReactBootStrap from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import $ from 'jquery';
+import Popup from "reactjs-popup";
 
-//const API_SITE = "http://localhost:5000/"
-const API_SITE = "https://covidcostbenefit.com/"
+const API_SITE = "http://localhost:5000/"
+//const API_SITE = "https://covidcostbenefit.com/"
 
 const columns = [
   {
@@ -87,7 +90,7 @@ class MyTable extends React.Component {
 
   renderTable() {
     return (
-      <ReactBootStrap.Table className="table1" striped bordered hover>
+      <ReactBootStrap.Table className="table1 leftmargin3" striped bordered hover>
         <tbody>
           <tr>
             <td width="80%"><MyDropdown title={this.props.id} items={this.props.data[this.props.type]} onClick={x => this.addRow(x)}/></td><td></td>
@@ -158,7 +161,7 @@ class ScenarioSelector extends React.Component {
       if (this.props.isLoading)
         return null;
       return (
-        <div  className="scenario_select">
+        <div  className="leftmargin1">
         <ReactBootStrap.DropdownButton title="Select Scenario">
           {this.props.data['scenarios'].map( (x) => <ReactBootStrap.Dropdown.Item as="button" onClick={() => this.props.onClick(x["id"])} key={x["id"]}>{x["description"]}</ReactBootStrap.Dropdown.Item>)}
         </ReactBootStrap.DropdownButton>
@@ -168,7 +171,7 @@ class ScenarioSelector extends React.Component {
 }
 
 
-class CostLibrary extends React.Component {
+class DataLibrary extends React.Component {
   constructor(props) {
     super(props);
     this.columns = JSON.parse(JSON.stringify(columns));
@@ -179,8 +182,14 @@ class CostLibrary extends React.Component {
           return (
             <div>
 
-            <div className="sameline"><img src="like.png" width="32px" onClick={(x) => this.voteClick(x, row)}/></div>
-            <div className="sameline">{cell}</div>
+            <div className="sameline"><img src="like.png" width="32px" onClick={(x) => {
+              if (!row.hasOwnProperty("voted")) {
+                const element = $("#" + this.props.type + "vote" + row['id']);
+                element.text(parseInt(element.text()) + 1);
+              }
+              this.voteClick(x, row);
+            }}/></div>
+            <div id={this.props.type + "vote" + row['id']} className="sameline">{cell}</div>
             </div>
           );
         };
@@ -203,11 +212,77 @@ class CostLibrary extends React.Component {
     if (this.props.isLoading)
       return null;
     return (
-      <div className="table1 spaceabove">
+      <div className="table1 spaceabove leftmargin3">
       <BootstrapTable keyField='id' pagination={paginationFactory()} striped hover
          data={this.props.data[this.props.type]} columns={this.columns}
          defaultSorted={defaultSorted}/>
       </div>
+    );
+  }
+}
+
+
+class NewCostDialog extends React.Component {
+  button_label = {costs: "Create New Cost", benefits: "Create New Benefit", stats: "Create New Statistic"}
+  constructor(props) {
+    super(props);
+    this.state = {description: '',
+                  detailed_description: '',
+                  value: ''};
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  handleSubmit(event, close) {
+    //alert('A name was submitted: ' + this.state.short_description + this.state.long_description);
+    axios.post(API_SITE + 'api/v1/create/' + this.props.type, this.state, {headers: {'Content-Type': 'application/json'}})
+      .then(() => {
+        //event.preventDefault();
+        close();
+        this.props.reloadPage();
+      });
+
+  }
+
+  render() {
+    return (
+      <Popup trigger={<Button className="leftmargin3">{this.button_label[this.props.type]}</Button>} modal>
+
+          {close => (
+            <div>
+            <a className="close" onClick={close}>
+              &times;
+            </a>
+              <form className="popupform">
+                <label>
+                  Short Description:
+                  <input type="text" value={this.state.short_description} onChange={this.handleChange} name="description" />
+                  <br/>
+                  Detailed Description (include references here):
+                  <textarea value={this.state.long_description} onChange={this.handleChange} name="detailed_description" rows="8" cols="60" />
+                  <br/>
+                  Value (in trillions of dollars):
+                  <input type="text" value={this.state.value} onChange={this.handleChange} name="value" />
+                </label>
+              </form>
+
+              <div className="actions">
+                <Button onClick={(e) => this.handleSubmit(e, close)}>Submit</Button>{'   '}
+                <Button onClick={close}>Cancel</Button>
+              </div>
+            </div>
+          )}
+      </Popup>
     );
   }
 }
@@ -243,22 +318,36 @@ class Page extends React.Component {
     this.costbenefit_ref.current.setScenario(id)
   }
 
+  reloadPage() {
+    axios.get(API_SITE + 'api/v1/resources')
+      .then(res => {
+        //console.log(res.data);
+          this.setState({data: res.data, isLoading: false});
+        });
+  }
+
   render() {
     //console.log("page");
     //console.log(this.state.data);
     return (
       <div>
-      <center><h1>COVID-19 Cost Benefit</h1></center>
+
       <ScenarioSelector onClick={(x) => this.setScenario(x)} data={this.state.data} isLoading={this.state.isLoading}/>
       <CostBenefit ref={this.costbenefit_ref} data={this.state.data} isLoading={this.state.isLoading}/>
 
       <hr className='table1'/>
       <h3 className="largespaceabove">Library of Costs</h3>
-      <CostLibrary data={this.state.data} type='costs' isLoading={this.state.isLoading}/>
+      <NewCostDialog type="costs" reloadPage={() => this.reloadPage()}/>
+      <DataLibrary data={this.state.data} type='costs' isLoading={this.state.isLoading}/>
       <hr className='table1'/>
 
       <h3 className="largespaceabove">Library of Benefits</h3>
-      <CostLibrary data={this.state.data} type='benefits' isLoading={this.state.isLoading}/>
+      <NewCostDialog type="benefits" reloadPage={() => this.reloadPage()}/>
+      <DataLibrary data={this.state.data} type='benefits' isLoading={this.state.isLoading}/>
+
+      <h3 className="largespaceabove">Library of Statistics</h3>
+      <NewCostDialog type="stats" reloadPage={() => this.reloadPage()}/>
+      <DataLibrary data={this.state.data} type='stats' isLoading={this.state.isLoading}/>
       </div>
     );
   }

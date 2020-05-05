@@ -4,26 +4,28 @@ benefits:
     that each live averages a value of 0.5 million$.
   id: 0
   value: 0.95
-  votes: 1
+  votes: 0
+
 costs:
 - description: 6 Month Economic shutdown
   detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
     for 6 months.
   id: 0
   value: 0.7
-  votes: 17
+  votes: 0
 - description: 12 Month Economic shutdown
   detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
     for 12 months.
   id: 1
   value: 1.4
-  votes: 1
+  votes: 0
 - description: 18 Month Economic shutdown
   detailed_description: This is calculated as 7% opportunity cost of GDP (20 Trillion)
     for 18 months.
   id: 2
   value: 2.1
-  votes: 1
+  votes: 0
+
 scenarios:
 - benefits: []
   costs: []
@@ -35,3 +37,33 @@ scenarios:
   - 1
   description: Extended Social Distancing
   id: 1
+stats:
+- description: Deaths in the U.S. from automobiles (2018)  (deaths/yr)
+  id: 0
+  link: https://en.wikipedia.org/wiki/Motor_vehicle_fatality_rate_in_U.S._by_year#Motor_vehicle_deaths_in_U.S._by_year
+  value: 36,560
+  votes: 0
+- description: Deaths in the U.S. from flu  (deaths/yr)
+  id: 1
+  link: https://www.cdc.gov/flu/about/burden/preliminary-in-season-estimates.htm
+  value: 24,000 to 62,000
+  votes: 0
+- description: 2018 total U.S. Deaths  (deaths/yr)
+  id: 2
+  link: https://www.cdc.gov/nchs/products/databriefs/db355.htm
+  value: 2,839,205
+  votes: 1
+- description: 2018 U.S. suicide deaths (deaths/yr)
+  id: 3
+  link: https://www.cdc.gov/nchs/products/databriefs/db355.htm
+  value: 47,173
+  votes: 0
+- description: 2018 U.S. heart disease deaths
+  value: 647,457
+  votes: 0
+  id: 4
+- description: Patient non-compliance. People don't take their medicine.
+  value: 100,000
+  link: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6045499/
+  votes: 0
+  id: 5

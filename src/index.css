@@ -1,22 +1,14 @@
-.table-row:after {
-  clear: both;
-  content: "";
-  display: table;
+
+.leftmargin1 {
+  margin-left: 3%;
 }
 
-.cell {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 68px;
+.leftmargin2 {
+  margin-left: 5%;
+}
+
+.leftmargin3 {
+  margin-left: 7%;
 }
 
 .AddRowButton {
@@ -26,9 +18,9 @@
 
 .table1 {
   width: 70%;
-  margin: auto;
+  //margin: auto;
   //margin-top: 50px;
-  margin-left: 5%;
+  //margin-left: 5%;
 }
 
 .spaceabove {
@@ -50,7 +42,7 @@
 }
 
 h3 {
-  margin-left: 4%;
+  margin-left: 5%;
   margin-top: 20px;
 }
 
@@ -60,4 +52,41 @@ h3 {
   text-align: center;
   top: 20px;
   width: 15%;
+}
+
+.modal {
+  font-size: 12px;
+}
+.modal > .header {
+  width: 100%;
+  border-bottom: 1px solid gray;
+  font-size: 18px;
+  text-align: center;
+  padding: 5px;
+}
+.modal > .content {
+  width: 100%;
+  padding: 10px 5px;
+}
+.modal > .actions {
+  width: 100%;
+  padding: 10px 5px;
+  margin: auto;
+  text-align: center;
+}
+.modal > .close {
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  padding: 2px 5px;
+  line-height: 20px;
+  right: -10px;
+  top: -10px;
+  font-size: 24px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #cfcece;
+}
+.popupform {
+  margin-top: 50px;
 }
